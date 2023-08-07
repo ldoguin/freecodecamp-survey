@@ -2,7 +2,7 @@
 
 Step by Step minimal FreeCodeCamp Survey database tutorial. What happens after you have completed https://www.freecodecamp.org/learn/2022/responsive-web-design/build-a-survey-form-project/build-a-survey-form ?
 
-# Step 1 - Create an HTML Form
+## Step 1 - Create an HTML Form
 
 Getting a lot of inspiration from the FreeCodeCamp survey example(Copy, paste, and trim), I get the following HTML form.
 
@@ -79,7 +79,7 @@ The styles.css file is exactly the same. To test it you can go in your browser a
 
 The question then is, how do we deploy it to a website, how do we make it do something ? We need some backend code to be executef after the click. And then make that code store the from content in a database. 
 
-# Step 2 - Netlify
+## Step 2 - Git, Github, Netlify
 
 Let's start by deploying this form live on the Internet. To that end we are going to use Netlify. First thing first, making sure that we have the Netlify CLI available, and that we are logged in.
 
@@ -210,5 +210,312 @@ You will see a link to your newly deployed on the internet website, for me it's 
 
 ![A screenshot of a newly created Project](images/netlifyProjectCreatedWiz.png)
 
-Congratulatios, your website is now live on the Internet. Take a minute to celebrate 🎉.
+Congratulations, your website is now live on the Internet. Take a minute to celebrate 🎉.
 
+Now we can link this Netlify project by entering `netlify link` in the terminal. A list of options will be offered. Select the default one, which should be `Use current git remote origin (https://github.com/yourOrg/yourProject)`. Because you have deployed through Github, Netlify has the git information of your repo and can infer which project to use (And also at that point you probably have only one project). This is what the output looks for me:
+```
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify link
+
+netlify link will connect this folder to a site on Netlify
+
+? How do you want to link this folder to a site? Use current git remote origin (https://github.com/ldoguin/myproject)
+
+Looking for sites connected to 'https://github.com/ldoguin/myproject'...
+
+
+Directory Linked
+
+Admin url: https://app.netlify.com/sites/jolly-sfogliatella-3e6c07
+Site url:  https://jolly-sfogliatella-3e6c07.netlify.app
+
+You can now run other `netlify` cli commands in this directory
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ 
+```
+
+We can try a couple things now. I am going add a 🐼 emoji to my form because why not. In `index.html`, I am modifying line 9 from this:
+`<h1 id="title" class="text-center">Survey Form</h1>`
+ to this
+`<h1 id="title" class="text-center">Survey Form 🐼</h1>`
+
+Saving the file, and pushing this changes to Github, then entering `netlify open:site` to the terminal:
+
+```
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git add .\index.html
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git commit -m"Panda"
+[main caa6f87] Panda 
+ 1 file changed, 1 insertion(+), 1 deletion(-)
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git push
+Enumerating objects: 5, done.
+Counting objects: 100% (5/5), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (3/3), done.
+Writing objects: 100% (3/3), 360 bytes | 180.00 KiB/s, done.
+Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
+remote: Resolving deltas: 100% (1/1), completed with 1 local object.
+To https://github.com/ldoguin/myproject.git
+   356ece7..8a2ebe2  main -> main
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify open:site  
+Opening "jolly-sfogliatella-3e6c07" site url:
+> https://jolly-sfogliatella-3e6c07.netlify.app
+```
+
+Something very cool is happening. Because your Github repo is linked to Netlify, a new deployment will be automatically done by Netlify. So when opening the website, you will see the Panda <3.
+
+![A screenshot of the survey title, modified with a Panda emoji](images/pandaTitle.png)
+
+At that point we have a Github Repository that holds our code, that is integrated to Netlify, that will automatically create new deployment when you push new code. And we also have a configured `netlify` CLI in our working folder. We are ready to write backend code !
+
+
+## Step 3 - Backend
+
+In this chapter we will answer the following question: What happens when someone fill the form and click on submit ?
+
+The answer right now is: Nothing. Let's change that. By writing some JavaScript. We are going to display a popup alert when someone enters valid information and click on Submit.
+
+```javascript
+    
+<script>
+  const form = document.getElementById('survey-form'); 1️⃣
+  form.addEventListener('submit', handleForm); 2️⃣
+
+  async function handleForm(e) {
+    e.preventDefault() 3️⃣
+    alert("Form Submission !") 4️⃣
+  }
+
+  </script>
+  </body>
+</html>
+```
+
+1️⃣ Get the Dom element representing the form by using its id
+2️⃣ Each time the submit event occurs, run the handleForm function
+3️⃣ The natural behavior of a form submission is to reload the page, we don't need that, hence we prevent the default behavior to happen
+4️⃣ The alert function display a popup with a message
+
+If you save your code and reload the page, fill the form, click on submit, you should see something like this:
+![A screenshot of a sucessfull form submission](images/formSubmission.png)
+
+Now that we have something happening when a user submit the form, let's go a bit further. We want to look at the content of the form and make sure we can get the right data in JSON. We want a String for the name, and Integer for the age and a boolean for the recommandation.
+
+And it turns out that the HTML checkbox is not playing nice. The value it gives by default is no value, and once checked it gives the content of the value field. We are going to add another input field, hidden, to make sure the default value will be False.
+```html
+          <label>
+            <input
+              id="hiddenRecommend"
+              name="recommend"
+              value="false"
+              type="hidden"
+            />
+            <input
+              id="recommend"
+              name="recommend"
+              value="true"
+              type="checkbox"
+              class="input-checkbox"
+            />yes</label>
+```
+
+Now about the Javascript Code, the are some interesting new lines to look into.
+
+```Javascript
+  const form = document.getElementById('survey-form');
+  form.addEventListener('submit', handleForm);
+
+  async function handleForm(e) {
+    e.preventDefault()
+    
+    const data = new FormData(e.target);
+    const value = Object.fromEntries(data.entries());
+    const details = `name: ${value.name}\nage: ${value.age}\nrecommend: ${value.recommend}`;
+    console.log(details);
+  }
+```
+1. The parameter of the handleForm function is an object(e) with a field called target. This target can be transform into a FormData object.
+2. The FormData object can be transformed into a JSON object.
+3. Now that we have a JSON object we can print out the values we are interested in.
+4. This time instead of displaying an alert box, we are logging the details string to the console. The console can be accessed through your browser's dev tools. It is great for debugging.
+
+With that being sorted, let's get serious and start creating a Netlify function. Enter `netlify function:create` in your terminal. You should see something like
+```
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify function:create
+? Select the type of function you'd like to create Serverless function (Node/Go)
+◈ functions directory not specified in netlify.toml or UI settings
+? Enter the path, relative to your site’s base directory in your repository, where your functions should live: netlify/functions
+◈ updating site settings with netlify/functions
+◈ functions directory netlify/functions updated in site settings
+◈ functions directory netlify/functions does not exist yet, creating it...
+◈ functions directory netlify/functions created
+? Select the language of your function JavaScript
+? Pick a template javascript-hello-world
+? Name your function: saveform
+◈ Creating function saveform
+◈ Created netlify\functions\saveform\saveform.js
+[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ 
+```
+
+Select Serverless function, leaves the default for the next question about path, keep Javascript as the language, keep the default hello-world template, than give a name to your function. Mine is called `saveform`. This will generates new files in the netlify folder. If you run `netlify dev` now, you will see new lines the logs:
+ ```
+ Loaded function saveform http://localhost:8888/.netlify/functions/saveform.
+◈ Functions server is listening on 62431
+```
+This means that our netlify dev server is also serving our newly created function. Take a look at the newly generated file `./netlify/functions/saveform/saveform.js`.
+
+```javascript
+// Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
+const handler = async (event) => {
+  try {
+    const subject = event.queryStringParameters.name || 'World'
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ message: `Hello ${subject}` }),
+      // // more keys you can return:
+      // headers: { "headerName": "headerValue", ... },
+      // isBase64Encoded: true,
+    }
+  } catch (error) {
+    return { statusCode: 500, body: error.toString() }
+  }
+}
+
+module.exports = { handler }
+```
+
+ Let's try it out by calling this function when the user clicks on submit. Just add the following code after the last console.log call:
+
+```Javascript
+    console.log(details);
+
+    const response = await fetch("/.netlify/functions/saveform", {
+      method: 'GET',
+      headers: {
+          'Content-Type': 'application/json',
+        },
+    })
+    if (response.status == 200) {
+      console.log(await response.text());
+    }
+```
+
+Add, commit and push. `netlify open:admin`
+![A screenshot showing the Netlify site administrator overview, with the list of all deployments already done](images/netlifyDeployList.png)
+
+![A screenshot of the form page and the developer tools opened, showing the message returned by the Netlify function](images/netlifyFunctionReturnCall.png)
+
+At this point, you have a frontend and a backend deployed, on Internet. But all we are doing is calling the default function created by Netlify's wizard. The next step is to send the content of the form to that function, and store is in a database.
+
+## Step 4 - Database
+
+First thing to do is figure out how to send the form details to the function. This requires us to change our GET method to a POST method. These things are called HTTP request methods, sometimes reffered to as HTTP verbs. You can take a look at the full list on [MDN](https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods). A Get method request is used to only retrieve data. A post method request is used to create or change data. This is exactly what we want. We want to create a new entry in our Dababase when someone submits a form. An HTTP request has a method, some headers(Metadata about your requests, here we are saying the request will be JSON content with the Content-Typ header), and a body. The body of our request will be JSON text.
+
+```Javascript
+    const response = await fetch("/.netlify/functions/saveform", {
+      method: 'POST',
+      headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(value),
+    })
+```
+
+Out frontend HTTP request to our backend is changed, now we need to adapt the backend code.
+
+```Javascript
+const handler = async (event) => {
+  try {
+    var data = JSON.parse(event.body);
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ name: data.name })
+    }
+  } catch (error) {
+    return { statusCode: 500, body: error.toString() }
+  }
+}
+
+module.exports = { handler }
+```
+
+Now you should see a different message in the web dev console, you should see `{"name":"yourName"}`.
+
+We have send the form data to the backend and made sure of it. Now on to the Database side of things. Working at Couchbase, this is the database I am going to use. A simple way to try, go to [https://cloud.couchbase.com/sign-up](https://cloud.couchbase.com/sign-up), create an account, you get a 30 days trial, no credit card required.
+
+![A screenshot of the first Couchbase Capella Get started wizard step ](images/capellaGetStarted.png)
+
+You can leave the default on, or choose your favorite cloud provider and closest region. Click on *Deploy now* and wait for the deployment of your database. 
+![A screenshot of the Couchbase Capella trial home](images/capellaTrialHome.png)
+
+Two things we want to do from there. Make sure we can connect to that database from our backend code, and make sure we can write the data somewhere. Go ahead and click the Connect tab. 
+
+In Couchbase we store data in Buckets. By default the trial comes with a travel-sample bucket preimported. We are not going to use it. Instead we are going to create our own bucket. Click on *Settings* on the top level menu, than on *Buckets* on the left menu.
+
+![A screenshot of the Bucket settings in Couchbase Capella](images/bucketHome.png)
+
+Now click on *+ Create Bucket*, give it a name and leave the rest to default settings.Than Click on *Create Bucket*.
+
+![A screenshot of the Buckets settings home, with the newly created bucket visible](images/surveyFormBucketCreated.png)
+
+We have a new Bucket, now we need to create associated credentials. Click the *Database Access* button, than *Create Database Access* button.
+
+![Alt text](image.png)
+
+![Alt text](image.png)
+
+Make sure you remember both username and passaord and click on *Create Database*. One last thing to do is to allow this database to be reachable publicly. Right now it's hidden. Click on *Allowed IP Addresses*, than *Add Allowed IP*. Click on *Allow Access from Anywhere*, follow the instructions. This should prefill the form, than click on the *Add Allowed IP* button. You might think this is a bit cumbersome. Why isn't it the default?
+
+![Alt text](image.png)
+![Alt text](image.png)
+
+Now click on the *Connect* tab. You will see the connection String, select your database credentials, switch the language to Node, and it will five us the right instructions to connect to the database from our backend code.
+![Alt text](images/connectInstructions.png)
+
+We can copy and paste this to our function code, and add a couple more things.
+
+```Javascript
+const couchbase = require("couchbase");
+const crypto = require("crypto")
+
+const handler = async (event) => {
+  try {
+		const clusterConnStr = "couchbases://cb.ar0qqwli6cczm1u.cloud.couchbase.com"; // Replace this with Connection String
+		const username = "Adminstrator"; // Replace this with username from database access credentials
+		const password = "Couch#123"; // Replace this with password from database access credentials
+		// Get a reference to the cluster
+		const cluster = await couchbase.connect(clusterConnStr, {
+		  username: username,
+		  password: password,
+		  // Use the pre-configured profile below to avoid latency issues with your connection.
+		  configProfile: "wanDevelopment",
+		});
+    const bucket = cluster.bucket("surveyform");
+    const collection = bucket.defaultCollection();
+
+    var data = JSON.parse(event.body);
+    let result = await collection.insert(crypto.randomUUID(), data);
+    
+    return {
+      statusCode: 200,
+      body: JSON.stringify({ name: data.name })
+    }
+  } catch (error) {
+    console.log(error);
+    return { statusCode: 500, body: error.toString() }
+  }
+}
+
+module.exports = { handler }
+
+```
+
+`npm i couchbase`
+
+*Data Tools*, select your Bucket and you should see your survey from document.
+![Alt text](images/bucketdetails.png)
+
+`netlify dev`
+
+Add Couchabse specific strip config and push
+
+Now it works but we did something bad, we pushed our credentials to Github, never, ever do that again. Use environment variables instead.
+
+Next, use environment variable, learn about 12 factors,
