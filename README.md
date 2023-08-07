@@ -418,7 +418,7 @@ First thing to do is figure out how to send the form details to the function. Th
     })
 ```
 
-Out frontend HTTP request to our backend is changed, now we need to adapt the backend code.
+Our frontend HTTP request to our backend is changed, now we need to adapt the backend code.
 
 ```Javascript
 const handler = async (event) => {
@@ -436,7 +436,7 @@ const handler = async (event) => {
 module.exports = { handler }
 ```
 
-Now you should see a different message in the web dev console, you should see `{"name":"yourName"}`.
+You should see a different message in the web dev console, you should see `{"name":"yourName"}`.
 
 We have send the form data to the backend and made sure of it. Now on to the Database side of things. Working at Couchbase, this is the database I am going to use. A simple way to try, go to [https://cloud.couchbase.com/sign-up](https://cloud.couchbase.com/sign-up), create an account, you get a 30 days trial, no credit card required.
 
@@ -457,17 +457,17 @@ Now click on *+ Create Bucket*, give it a name and leave the rest to default set
 
 We have a new Bucket, now we need to create associated credentials. Click the *Database Access* button, than *Create Database Access* button.
 
-![Alt text](image.png)
+![A screenshot of the empty Credentials settings](images/emptyCredentials.png)
 
-![Alt text](image.png)
+![A screenshot fo the credentials creation detail](images/credentialCreation.png)
 
 Make sure you remember both username and passaord and click on *Create Database*. One last thing to do is to allow this database to be reachable publicly. Right now it's hidden. Click on *Allowed IP Addresses*, than *Add Allowed IP*. Click on *Allow Access from Anywhere*, follow the instructions. This should prefill the form, than click on the *Add Allowed IP* button. You might think this is a bit cumbersome. Why isn't it the default?
 
-![Alt text](image.png)
-![Alt text](image.png)
+![A screenshot of the Allow Access from Anywhere popup](images/addAllowedIp.png)
+![A screenshot of the resuting operation with the newly added IP range](images/addedIp.png)
 
 Now click on the *Connect* tab. You will see the connection String, select your database credentials, switch the language to Node, and it will five us the right instructions to connect to the database from our backend code.
-![Alt text](images/connectInstructions.png)
+![A screenshot of the SDK connection instructions, with doc and code](images/connectInstructions.png)
 
 We can copy and paste this to our function code, and add a couple more things.
 
@@ -507,15 +507,180 @@ module.exports = { handler }
 
 ```
 
-`npm i couchbase`
+You can see we have two new dependencies to our project. The 'crypto' package is provided by node. For Couchbase you need to install it. Running `npm i couchbase@4.2.4` will do the trick. Right now Netlify/Couchbase compatibilty is assured for Couchbase version 4.2.4 or bellow. This is due to the nature of our SDK. It's a JavaScript interface on top our our C SDK. And C dependencies expect to find their system dependencies in the right version. Right now Couchbase 4.2.5 is expecting to find GLIBC_29 but it's not available on the Ubuntu system running our Netlify backend code.
 
-*Data Tools*, select your Bucket and you should see your survey from document.
-![Alt text](images/bucketdetails.png)
+Now that we have dependencies, let's be explicit in how build them. You can add a `netlify.toml` file at the root of the repository with the following content:
 
-`netlify dev`
+```toml
+[build]
+  command = "npm install && strip --strip-debug ./node_modules/couchbase/build/Release/couchbase_impl.node"
+  publish = "."
+```
+It's doing a couple things. Installing the dependencies and removing the debug symbol table from `couchbase_impl.node`. This file is the C library used by our Node SDK. And it's too big for Netlify right now. So we are removing unnecessary clutter coming from the build process.
 
-Add Couchabse specific strip config and push
+Now you can add the new files, commit and push to Github. And retry your function. If everything went well, you have written data to your Database! You can check this out easily by going to the Couchbase Capella UI. Cick on *Data Tools*, select your Bucket, Scope and collection, and you should see your survey from document.
+![A screenshot of the Bucket content with the newly created document](images/bucketdetails.png)
 
-Now it works but we did something bad, we pushed our credentials to Github, never, ever do that again. Use environment variables instead.
+Congratulations, you went fullstack. Backend, Frontend and Database. But our work is not over. There are still a couple things we can do to make this more professional.
 
-Next, use environment variable, learn about 12 factors,
+## Step 5 - Configuration Management
+
+We did something terrible, we pushed our credentials to Github. This is something to avoid because now someone has your credentials. We could rewrite the Github history but really the good thing to do once your credentials, password, keys are in the wild. It's to change them. Consider them lost.
+
+To fix this we are going to use environment variables instead. Environment variables are common to every Operating Systems and as such is a great way to manage configuration.
+
+```
+....
+const ENDPOINT = process.env.COUCHBASE_ENDPOINT || "couchbase://localhost";
+const USERNAME = process.env.COUCHBASE_USERNAME || "Administrator";
+const PASSWORD = process.env.COUCHBASE_PASSWORD || "password";
+const BUCKET = process.env.COUCHBASE_BUCKET || "surveyform"
+
+const handler = async (event) => {
+  try {
+		const clusterConnStr = ENDPOINT; // Replace this with Connection String
+		const username = USERNAME; // Replace this with username from database access credentials
+		const password = PASSWORD; // Replace this with password from database access credentials
+		// Get a reference to the cluster
+		const cluster = await couchbase.connect(clusterConnStr, {
+		  username: username,
+		  password: password,
+		  // Use the pre-configured profile below to avoid latency issues with your connection.
+		  configProfile: "wanDevelopment",
+		});
+    const bucket = cluster.bucket(BUCKET);
+...
+```
+
+The process object is always available with node so no need for a specific library import. Using _||_ allows to provide a default value for each variable if they are not defined.
+
+On Mac or Linux, you can run `export MYVARIABLE="value"` in your terminal. On Windows you can run `$Env:MYVARIABLE="value"`
+
+To define them in Netlify's context, you can go though the UI and do it manually, or use the CLI:
+```
+netlify env:set COUCHBASE_ENDPOINT couchbases://cb.ar0qqwli6cczm1u.cloud.couchbase.com
+netlify env:set COUCHBASE_USERNAME Administrator
+netlify env:set COUCHBASE_PASSWORD password
+netlify env:set COUCHBASE_BUCKET surveyform
+```
+
+## Step 6 - User feedback
+
+Right now we don't have much happening when the user clicks on the *Submit* button of our form. We need to change this to let them know they have been successfully recored, or not. First step it check for an error on the dev side of things. HTTP status code are well made, anything equals or higher than 400 is usually an error, so we can do something like this:
+
+```Javascript
+    
+    if (response.status >= 400) {
+      console.log("Something when wrong");
+      console.log(await response.text());
+      return false;
+    }
+```
+
+
+To test it, just make a typo somewhere in your Connection String or Credentials to Couchnase. You should see errors in the webconsole once clicking on *Submit*. But the web console is just for us, we need to add a proper error or success message to our user.
+
+I added a couple span with error and success message right before the end of the form. Note the hide CSS class that makes them invisible for now.
+```html
+...
+        </div>
+        <span id="form-error" class="error-message hide"></span>
+        <span id="thank-you-message" class="hide">
+          Your participation has been recorded, thank you!.
+        </span>
+      </form>
+...
+```
+
+And here is the corresponding CSS. Displaying the error in red, hiding or showing an element, and a nice fade-out animation because I am fancy like that.
+
+```css
+.container .error-message {
+  color: red;
+}
+
+.hide {
+  display: none;
+}
+.show {
+  display: block;
+}
+
+.fade-out {
+  animation: fadeOut ease 8s;
+  -webkit-animation: fadeOut ease 8s;
+  -moz-animation: fadeOut ease 8s;
+  -o-animation: fadeOut ease 8s;
+  -ms-animation: fadeOut ease 8s;
+}@keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+@-moz-keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+@-webkit-keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+@-o-keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+  }
+}
+
+@-ms-keyframes fadeOut {
+  0% {
+    opacity:1;
+  }
+  100% {
+    opacity:0;
+    display: none;
+}
+```
+
+Now to put everything together. The first two lines get the new span elements just added. the call to `form.reset()` is clearing all values from the form when the returned response status code is 200. Than the rest is playing with CSS classes to make the message appear, than fading out with the addition of the fade-out class, than a 7000ms timeout function will remove every classes and hide the element again. It's pretty much the same when there is an error.
+
+```Javascript
+
+    const thankYouMessage = document.getElementById('thank-you-message');
+    const formError = document.getElementById("form-error");
+
+    if (response.status == 200) {
+      form.reset();
+      thankYouMessage.classList.add('show');
+      thankYouMessage.classList.add('fade-out');
+      setTimeout(function(){thankYouMessage.classList.remove('fade-out');thankYouMessage.classList.remove('show');}, 7000);
+      console.log(await response.text());
+      return false;
+    }
+    
+    if (response.status >= 400) {
+      console.log("Something when wrong");
+      console.log(await response.text());
+      formError.textContent = "Something went wrong while recording your contact.";
+      formError.classList.toggle('show');
+      formError.classList.toggle('fade-out');
+      setTimeout(function(){formError.classList.toggle('fade-out');formError.classList.toggle('show');}, 7000);
+      return false;
+    }
+```
