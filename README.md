@@ -291,10 +291,10 @@ The answer right now is: Nothing. Let's change that. By writing some JavaScript.
 </html>
 ```
 
-  <1> Get the Dom element representing the form by using its id
-  <2> Each time the submit event occurs, run the handleForm function
-  <3> The natural behavior of a form submission is to reload the page, we don't need that, hence we prevent the default behavior to happen
-  <4> The alert function display a popup with a message
+    <1> Get the Dom element representing the form by using its id
+    <2> Each time the submit event occurs, run the handleForm function
+    <3> The natural behavior of a form submission is to reload the page, we don't need that, hence we prevent the default behavior to happen
+    <4> The alert function display a popup with a message
 
 If you save your code and reload the page, fill the form, click on submit, you should see something like this:
 ![A screenshot of a sucessfull form submission](images/formSubmission.png)
@@ -334,10 +334,10 @@ Now about the Javascript Code, the are some interesting new lines to look into.
     console.log(details); <4>
   }
 ```
-  <1> The parameter of the handleForm function is an object(e) with a field called target. This target can be transform into a FormData object.
-  <2> The FormData object can be transformed into a JSON object.
-  <3> Now that we have a JSON object we can print out the values we are interested in.
-  <4> This time instead of displaying an alert box, we are logging the details string to the console. The console can be accessed through your browser's dev tools. It is great for debugging.
+    <1> The parameter of the handleForm function is an object(e) with a field called target. This target can be transform into a FormData object.
+    <2> The FormData object can be transformed into a JSON object.
+    <3> Now that we have a JSON object we can print out the values we are interested in.
+    <4> This time instead of displaying an alert box, we are logging the details string to the console. The console can be accessed through your browser's dev tools. It is great for debugging.
 
 With that being sorted, let's get serious and start creating a Netlify function. Enter `netlify function:create` in your terminal. You should see something like
 ```
@@ -384,10 +384,10 @@ const handler = async (event) => { <1>
 module.exports = { handler }
 ```
 
-  <1> the signature of the function is aysynchronous (the async keyword),and has an event parameter. Asynchronous means some code inside the function can be asynchronous and we can wait for the code to be executed with the await keyword, instead of managing the JavaScript Promess object traditionally returned by async functions.
-  <2> the `event` object has some properties and methods, like `queryStringParameters` that allows us to get the name query param
-  <3> this function must return a JSON object with an HTTP status code and an Object body. If everything worked well, we return a JSON body containing a message field and the code 200. Code starting with 2 means things went well.
-  <4> If things went wrong, we return the status code 500. Code starting with 5 means something went wrong on the server. And the body field will contain the error.
+    <1> the signature of the function is aysynchronous (the async keyword),and has an event parameter. Asynchronous means some code inside the function can be asynchronous and we can wait for the code to be executed with the await keyword, instead of managing the JavaScript Promess object traditionally returned by async functions.
+    <2> the `event` object has some properties and methods, like `queryStringParameters` that allows us to get the name query param
+    <3> this function must return a JSON object with an HTTP status code and an Object body. If everything worked well, we return a JSON body containing a message field and the code 200. Code starting with 2 means things went well.
+    <4> If things went wrong, we return the status code 500. Code starting with 5 means something went wrong on the server. And the body field will contain the error.
 
  Let's try it out by calling this function when the user clicks on submit. Just add the following code after the last console.log call:
 
@@ -405,10 +405,10 @@ module.exports = { handler }
     }
 ```
 
-  <1> fetch is the method you can call to send an HTTP request to a server. Here we are sending a request to `/.netlify/functions/saveform`. Notice the await keyword that means this method usually returns a promess. Here we are just assign the result of the promess to the field response.
-  <2> HTTP request have methods, sometime also known as HTTP verbs. Here we are not modifying anything on the server, we are retrieving information, so we are using the method GET
-  <3> HTTP requests have [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type). They provide additional metadata like the Content-type, here set to `application/json`. What it means is that we are manipulating JSON. `application/text` would mean we are manipulating any form of text. These are called [Mime types or Media type](https://developer.mozilla.org/en-US/docs/Glossary/MIME_type).
-  <4> We are testing the status code returned by the server. If it's 200, it means everything went well. We have a message to display in the console.
+    <1> fetch is the method you can call to send an HTTP request to a server. Here we are sending a request to `/.netlify/functions/saveform`. Notice the await keyword that means this method usually returns a promess. Here we are just assign the result of the promess to the field response.
+    <2> HTTP request have methods, sometime also known as HTTP verbs. Here we are not modifying anything on the server, we are retrieving information, so we are using the method GET
+    <3> HTTP requests have [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type). They provide additional metadata like the Content-type, here set to `application/json`. What it means is that we are manipulating JSON. `application/text` would mean we are manipulating any form of text. These are called [Mime types or Media type](https://developer.mozilla.org/en-US/docs/Glossary/MIME_type).
+    <4> We are testing the status code returned by the server. If it's 200, it means everything went well. We have a message to display in the console.
 
 Add, commit and push. `netlify open:admin`
 ![A screenshot showing the Netlify site administrator overview, with the list of all deployments already done](images/netlifyDeployList.png)
@@ -450,8 +450,8 @@ const handler = async (event) => {
 
 module.exports = { handler }
 ```
-  <1> The event object allows us to get the body of the request. It's text, we can parse this text into a JSON object and assign it to the field called `data`.
-  <2> To make sure we did receive our JSON object, we change the returned message and use the field `data.name`. 
+    <1> The event object allows us to get the body of the request. It's text, we can parse this text into a JSON object and assign it to the field called `data`.
+    <2> To make sure we did receive our JSON object, we change the returned message and use the field `data.name`. 
 
 You should see a different message in the web dev console, you should see `{"name":"yourName"}`.
 
@@ -524,8 +524,8 @@ module.exports = { handler }
 
 ```
 
-  <1> You can see we have two new dependencies to our project. The 'crypto' package is provided by node. It allows us to generate a random identifier for our document
-  <2> The 'couchbase' package is the Couchbase NodeJS SDK. It's every bit of code you need to connect to a Couchbase database. This projects are also often called drivers for other databases, or clients.
+    <1> You can see we have two new dependencies to our project. The 'crypto' package is provided by node. It allows us to generate a random identifier for our document
+    <2> The 'couchbase' package is the Couchbase NodeJS SDK. It's every bit of code you need to connect to a Couchbase database. This projects are also often called drivers for other databases, or clients.
   
 For Couchbase you need to install it. Running `npm i couchbase@4.2.4` will do the trick. Right now Netlify/Couchbase compatibilty is assured for Couchbase version 4.2.4 or bellow. This is due to the nature of our SDK. It's a JavaScript interface on top our our C SDK. And C dependencies expect to find their system dependencies in the right version. Right now Couchbase 4.2.5 is expecting to find GLIBC_29 but it's not available on the Ubuntu system running our Netlify backend code.
 
@@ -538,11 +538,11 @@ Now that we have dependencies, let's be explicit in how build them. You can add 
 ```
 It's doing a couple things. Installing the dependencies and removing the debug symbol table from `couchbase_impl.node`. This file is the C library used by our Node SDK. And it's too big for Netlify right now. So we are removing unnecessary clutter coming from the build process.
 
-  <3> This variables are the informations needed for the SDK to connect to the cluster. A connections string, a username and a password.
-  <4> `couchbase.connect` takes the connection string as first parameter, than a JSON object with username, password and other options. Here we also give the `wanDevelopment` config profiles. It will increase the default timeout values of all Couchbase operations. Basically if your connection is slow it won't scream at you.
-  <5> From the Cluster object we get a Bucket. A bucket is where we store Scopes and Collections. Here we get the `surveyform` bucket. It already has a default scope and a default collection.
-  <6> From the bucket we can get the default Collection. A Collection is where we store Document, or key/value pairs. Think of the key as the identifier of the document, and the value as your JSON data. But it could be anything else.
-  <7> From the collection object, we call the insert method. It takes two parameters, the key and the value. So we call the randomUUID() method from the crypto package, to generate a random identifier. And we pass the data object as value. It contains our JSON. This function is asynchronous, it's making a request to the Couchbase Capella cluster. We await for the cluster's response.
+    <3> This variables are the informations needed for the SDK to connect to the cluster. A connections string, a username and a password.
+    <4> `couchbase.connect` takes the connection string as first parameter, than a JSON object with username, password and other options. Here we also give the `wanDevelopment` config profiles. It will increase the default timeout values of all Couchbase operations. Basically if your connection is slow it won't scream at you.
+    <5> From the Cluster object we get a Bucket. A bucket is where we store Scopes and Collections. Here we get the `surveyform` bucket. It already has a default scope and a default collection.
+    <6> From the bucket we can get the default Collection. A Collection is where we store Document, or key/value pairs. Think of the key as the identifier of the document, and the value as your JSON data. But it could be anything else.
+    <7> From the collection object, we call the insert method. It takes two parameters, the key and the value. So we call the randomUUID() method from the crypto package, to generate a random identifier. And we pass the data object as value. It contains our JSON. This function is asynchronous, it's making a request to the Couchbase Capella cluster. We await for the cluster's response.
 
 Now you could add the new files, commit and push to Github. But that would push your password to Github. We don't want that. Instead you can test it by running `netlify dev`. Go ahead and resubmit the form.
 
@@ -577,7 +577,7 @@ const handler = async (event) => {
     const bucket = cluster.bucket(BUCKET);
 ...
 ```
-  <1> The process object is always available with node so no need for a specific library import. Using _||_ allows to provide a default value for each variable if they are not defined.
+   <1> The process object is always available with node so no need for a specific library import. Using _||_ allows to provide a default value for each variable if they are not defined.
 
 On Mac or Linux, you can run `export MYVARIABLE="value"` in your terminal. On Windows you can run `$Env:MYVARIABLE="value"`
 
@@ -605,9 +605,9 @@ Right now we don't have much happening when the user clicks on the *Submit* butt
     }
 ```
 
-  <1> Status code that starts with 4 usually means something went wrong on the client side. The wrong data was sent, the client does not have the right permission, the page does not exist etc... Here we test if the code is equals or higher than 400.
-  <2> If it is, we log a message in the console
-  <3> We also log the error message returned by the server
+    <1> Status code that starts with 4 usually means something went wrong on the client side. The wrong data was sent, the client does not have the right permission, the page does not exist etc... Here we test if the code is equals or higher than 400.
+    <2> If it is, we log a message in the console
+    <3> We also log the error message returned by the server
 
 
 To test it, just make a typo somewhere in your Connection String or Credentials to Couchnase. You should see errors in the webconsole once clicking on *Submit*. But the web console is just for us, we need to add a proper error or success message to our user.
@@ -717,10 +717,10 @@ Now to put everything together. The first two lines get the new span elements ju
     }
 ```
 
-  <1> We assign our new spans to variables
-  <2> If things went well, we reset the form's data, it shows to the user that it worked.
-  <3> We first add a CSS class that shows the error message, than apply the fade-out CSS class, than call the timeout function. In 7000 ms, the fade-out and show CSS class will be removed, hiding the success message again.
-  <4> We do the same thing when there is an error, using the formError HTML element instead.
+    <1> We assign our new spans to variables
+    <2> If things went well, we reset the form's data, it shows to the user that it worked.
+    <3> We first add a CSS class that shows the error message, than apply the fade-out CSS class, than call the timeout function. In 7000 ms, the fade-out and show CSS class will be removed, hiding the success message again.
+    <4> We do the same thing when there is an error, using the formError HTML element instead.
 
 Now you can test submit a form again and see the different success or error message, depending on what you decided to do. When you are happy you can add, commit and push that code. 
 
