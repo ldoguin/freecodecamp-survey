@@ -1,10 +1,12 @@
 # freecodecamp-survey
 
-Step by Step minimal FreeCodeCamp Survey database tutorial. What happens after you have completed https://www.freecodecamp.org/learn/2022/responsive-web-design/build-a-survey-form-project/build-a-survey-form ?
+What happens after you have completed https://www.freecodecamp.org/learn/2022/responsive-web-design/build-a-survey-form-project/build-a-survey-form ?
+
+This is a step by step guide to take your form one step further. The goal is to store the content of the form in the database each time someone clicks the submit button. To do that we will use Github, Netlify and Couchbase Capella.
 
 ## Step 1 - Create an HTML Form
 
-Getting a lot of inspiration from the FreeCodeCamp survey example(Copy, paste, and trim), I get the following HTML form.
+Getting a lot of inspiration from the FreeCodeCamp survey example(Copy, paste, and trim), I get the following HTML form. It's a bit simpler than the original one. 
 
 ```html
 <!DOCTYPE html>
@@ -72,12 +74,13 @@ Getting a lot of inspiration from the FreeCodeCamp survey example(Copy, paste, a
   </body>
 </html>
 ```
+The styles.css file is exactly the same than the original. To get both content you can open https://survey-form.freecodecamp.rocks/ in your browser, right click on the page and you should see something like "view page source". Click on that and you will see the code of the page. While you are in this view you can click on link like `style.css` and get the CSS as well.
 
-The styles.css file is exactly the same. To test it you can go in your browser and select file, open, than select index.html. Take a look at your browser URL, it shows a path to a local file. And you should see somehting like this, that does not do anything when you click on submit.
+To test it you can go in your browser and select file, open, than select index.html. Take a look at your browser URL, it shows a path to a local file. And you should see somehting like this, that does not do anything when you click on submit.
 
 ![The screenshot of the survey from created during the freecode camp Survery lesson](images/htmlform.png)
 
-The question then is, how do we deploy it to a website, how do we make it do something ? We need some backend code to be executef after the click. And then make that code store the from content in a database. 
+The question then is, how do we deploy it to a website, how do we make it do something ? We need some backend code to be executed after the click. And then make that code store the form content in the database.
 
 ## Step 2 - Git, Github, Netlify
 
@@ -136,11 +139,11 @@ git push -u origin main
 
 This is the resulting terminal output:
 ```
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ echo "# myproject" >> README.md
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ ls
+[C:\Code\Couchbase\myproject] $ echo "# myproject" >> README.md
+[C:\Code\Couchbase\myproject] $ ls
 
 
-    Directory: C:\Users\Laurent Doguin\Documents\Couchbase\myproject
+    Directory: C:\Code\Couchbase\myproject
 
 
 Mode                 LastWriteTime         Length Name
@@ -148,7 +151,7 @@ Mode                 LastWriteTime         Length Name
 -a----          8/4/2023  12:11 PM             28 README.md
 
 
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git init
+[C:\Code\Couchbase\myproject] $ git init
 hint: Using 'master' as the name for the initial branch. This default branch name
 hint: is subject to change. To configure the initial branch name to use in all
 hint: of your new repositories, which will suppress this warning, call:
@@ -160,17 +163,17 @@ hint: 'development'. The just-created branch can be renamed via this command:
 hint:
 hint:   git branch -m <name>
 Initialized empty Git repository in C:/Users/Laurent Doguin/Documents/Couchbase/myproject/.git/
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git config --global init.defaultBranch main
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git branch -m main
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git add .\README.md .\index.html .\styles.css
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git commit -m "first commit"
+[C:\Code\Couchbase\myproject] $ git config --global init.defaultBranch main
+[C:\Code\Couchbase\myproject] $ git branch -m main
+[C:\Code\Couchbase\myproject] $ git add .\README.md .\index.html .\styles.css
+[C:\Code\Couchbase\myproject] $ git commit -m "first commit"
 [main (root-commit) 356ece7] first commit
  3 files changed, 245 insertions(+)
  create mode 100644 README.md
  create mode 100644 index.html
  create mode 100644 styles.css
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git remote add origin https://github.com/ldoguin/myproject.git
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git push -u origin main
+[C:\Code\Couchbase\myproject] $ git remote add origin https://github.com/ldoguin/myproject.git
+[C:\Code\Couchbase\myproject] $ git push -u origin main
 Enumerating objects: 5, done.
 Counting objects: 100% (5/5), done.
 Delta compression using up to 8 threads
@@ -180,7 +183,7 @@ Total 5 (delta 0), reused 0 (delta 0), pack-reused 0
 To https://github.com/ldoguin/myproject.git
  * [new branch]      main -> main
 branch 'main' set up to track 'origin/main'.
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $
+[C:\Code\Couchbase\myproject] $
 ```
 
 Now if I go back to the Github page and reload it, this what I see: 
@@ -214,7 +217,7 @@ Congratulations, your website is now live on the Internet. Take a minute to cele
 
 Now we can link this Netlify project by entering `netlify link` in the terminal. A list of options will be offered. Select the default one, which should be `Use current git remote origin (https://github.com/yourOrg/yourProject)`. Because you have deployed through Github, Netlify has the git information of your repo and can infer which project to use (And also at that point you probably have only one project). This is what the output looks for me:
 ```
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify link
+[C:\Code\Couchbase\myproject] $ netlify link
 
 netlify link will connect this folder to a site on Netlify
 
@@ -229,7 +232,7 @@ Admin url: https://app.netlify.com/sites/jolly-sfogliatella-3e6c07
 Site url:  https://jolly-sfogliatella-3e6c07.netlify.app
 
 You can now run other `netlify` cli commands in this directory
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ 
+[C:\Code\Couchbase\myproject] $ 
 ```
 
 We can try a couple things now. I am going add a 🐼 emoji to my form because why not. In `index.html`, I am modifying line 9 from this:
@@ -240,11 +243,11 @@ We can try a couple things now. I am going add a 🐼 emoji to my form because w
 Saving the file, and pushing this changes to Github, then entering `netlify open:site` to the terminal:
 
 ```
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git add .\index.html
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git commit -m"Panda"
+[C:\Code\Couchbase\myproject] $ git add .\index.html
+[C:\Code\Couchbase\myproject] $ git commit -m"Panda"
 [main caa6f87] Panda 
  1 file changed, 1 insertion(+), 1 deletion(-)
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ git push
+[C:\Code\Couchbase\myproject] $ git push
 Enumerating objects: 5, done.
 Counting objects: 100% (5/5), done.
 Delta compression using up to 8 threads
@@ -254,7 +257,7 @@ Total 3 (delta 1), reused 0 (delta 0), pack-reused 0
 remote: Resolving deltas: 100% (1/1), completed with 1 local object.
 To https://github.com/ldoguin/myproject.git
    356ece7..8a2ebe2  main -> main
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify open:site  
+[C:\Code\Couchbase\myproject] $ netlify open:site  
 Opening "jolly-sfogliatella-3e6c07" site url:
 > https://jolly-sfogliatella-3e6c07.netlify.app
 ```
@@ -275,12 +278,12 @@ The answer right now is: Nothing. Let's change that. By writing some JavaScript.
 ```javascript
     
 <script>
-  const form = document.getElementById('survey-form'); 1️⃣
-  form.addEventListener('submit', handleForm); 2️⃣
+  const form = document.getElementById('survey-form'); <1>
+  form.addEventListener('submit', handleForm); <2>
 
   async function handleForm(e) {
-    e.preventDefault() 3️⃣
-    alert("Form Submission !") 4️⃣
+    e.preventDefault() <3>
+    alert("Form Submission !") <4>
   }
 
   </script>
@@ -288,10 +291,10 @@ The answer right now is: Nothing. Let's change that. By writing some JavaScript.
 </html>
 ```
 
-1️⃣ Get the Dom element representing the form by using its id
-2️⃣ Each time the submit event occurs, run the handleForm function
-3️⃣ The natural behavior of a form submission is to reload the page, we don't need that, hence we prevent the default behavior to happen
-4️⃣ The alert function display a popup with a message
+  <1> Get the Dom element representing the form by using its id
+  <2> Each time the submit event occurs, run the handleForm function
+  <3> The natural behavior of a form submission is to reload the page, we don't need that, hence we prevent the default behavior to happen
+  <4> The alert function display a popup with a message
 
 If you save your code and reload the page, fill the form, click on submit, you should see something like this:
 ![A screenshot of a sucessfull form submission](images/formSubmission.png)
@@ -322,23 +325,23 @@ Now about the Javascript Code, the are some interesting new lines to look into.
   const form = document.getElementById('survey-form');
   form.addEventListener('submit', handleForm);
 
-  async function handleForm(e) {
+  async function handleForm(e) { <1>
     e.preventDefault()
     
-    const data = new FormData(e.target);
-    const value = Object.fromEntries(data.entries());
-    const details = `name: ${value.name}\nage: ${value.age}\nrecommend: ${value.recommend}`;
-    console.log(details);
+    const data = new FormData(e.target); <1>
+    const value = Object.fromEntries(data.entries()); <2>
+    const details = `name: ${value.name}\nage: ${value.age}\nrecommend: ${value.recommend}`; <3>
+    console.log(details); <4>
   }
 ```
-1. The parameter of the handleForm function is an object(e) with a field called target. This target can be transform into a FormData object.
-2. The FormData object can be transformed into a JSON object.
-3. Now that we have a JSON object we can print out the values we are interested in.
-4. This time instead of displaying an alert box, we are logging the details string to the console. The console can be accessed through your browser's dev tools. It is great for debugging.
+  <1> The parameter of the handleForm function is an object(e) with a field called target. This target can be transform into a FormData object.
+  <2> The FormData object can be transformed into a JSON object.
+  <3> Now that we have a JSON object we can print out the values we are interested in.
+  <4> This time instead of displaying an alert box, we are logging the details string to the console. The console can be accessed through your browser's dev tools. It is great for debugging.
 
 With that being sorted, let's get serious and start creating a Netlify function. Enter `netlify function:create` in your terminal. You should see something like
 ```
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ netlify function:create
+[C:\Code\Couchbase\myproject] $ netlify function:create
 ? Select the type of function you'd like to create Serverless function (Node/Go)
 ◈ functions directory not specified in netlify.toml or UI settings
 ? Enter the path, relative to your site’s base directory in your repository, where your functions should live: netlify/functions
@@ -351,7 +354,7 @@ With that being sorted, let's get serious and start creating a Netlify function.
 ? Name your function: saveform
 ◈ Creating function saveform
 ◈ Created netlify\functions\saveform\saveform.js
-[C:\Users\Laurent Doguin\Documents\Couchbase\myproject] $ 
+[C:\Code\Couchbase\myproject] $ 
 ```
 
 Select Serverless function, leaves the default for the next question about path, keep Javascript as the language, keep the default hello-world template, than give a name to your function. Mine is called `saveform`. This will generates new files in the netlify folder. If you run `netlify dev` now, you will see new lines the logs:
@@ -363,39 +366,49 @@ This means that our netlify dev server is also serving our newly created functio
 
 ```javascript
 // Docs on event and context https://docs.netlify.com/functions/build/#code-your-function-2
-const handler = async (event) => {
+const handler = async (event) => { <1>
   try {
-    const subject = event.queryStringParameters.name || 'World'
+    const subject = event.queryStringParameters.name || 'World' <2>
     return {
       statusCode: 200,
-      body: JSON.stringify({ message: `Hello ${subject}` }),
+      body: JSON.stringify({ message: `Hello ${subject}` }), <3>
       // // more keys you can return:
       // headers: { "headerName": "headerValue", ... },
       // isBase64Encoded: true,
     }
   } catch (error) {
-    return { statusCode: 500, body: error.toString() }
+    return { statusCode: 500, body: error.toString() } <4>
   }
 }
 
 module.exports = { handler }
 ```
 
+  <1> the signature of the function is aysynchronous (the async keyword),and has an event parameter. Asynchronous means some code inside the function can be asynchronous and we can wait for the code to be executed with the await keyword, instead of managing the JavaScript Promess object traditionally returned by async functions.
+  <2> the `event` object has some properties and methods, like `queryStringParameters` that allows us to get the name query param
+  <3> this function must return a JSON object with an HTTP status code and an Object body. If everything worked well, we return a JSON body containing a message field and the code 200. Code starting with 2 means things went well.
+  <4> If things went wrong, we return the status code 500. Code starting with 5 means something went wrong on the server. And the body field will contain the error.
+
  Let's try it out by calling this function when the user clicks on submit. Just add the following code after the last console.log call:
 
 ```Javascript
     console.log(details);
 
-    const response = await fetch("/.netlify/functions/saveform", {
-      method: 'GET',
-      headers: {
+    const response = await fetch("/.netlify/functions/saveform", { <1>
+      method: 'GET', <2>
+      headers: { <3>
           'Content-Type': 'application/json',
         },
     })
-    if (response.status == 200) {
+    if (response.status == 200) { <4>
       console.log(await response.text());
     }
 ```
+
+  <1> fetch is the method you can call to send an HTTP request to a server. Here we are sending a request to `/.netlify/functions/saveform`. Notice the await keyword that means this method usually returns a promess. Here we are just assign the result of the promess to the field response.
+  <2> HTTP request have methods, sometime also known as HTTP verbs. Here we are not modifying anything on the server, we are retrieving information, so we are using the method GET
+  <3> HTTP requests have [headers](https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Content-Type). They provide additional metadata like the Content-type, here set to `application/json`. What it means is that we are manipulating JSON. `application/text` would mean we are manipulating any form of text. These are called [Mime types or Media type](https://developer.mozilla.org/en-US/docs/Glossary/MIME_type).
+  <4> We are testing the status code returned by the server. If it's 200, it means everything went well. We have a message to display in the console.
 
 Add, commit and push. `netlify open:admin`
 ![A screenshot showing the Netlify site administrator overview, with the list of all deployments already done](images/netlifyDeployList.png)
@@ -410,23 +423,25 @@ First thing to do is figure out how to send the form details to the function. Th
 
 ```Javascript
     const response = await fetch("/.netlify/functions/saveform", {
-      method: 'POST',
+      method: 'POST', <1>
       headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(value),
+        body: JSON.stringify(value), <2>
     })
 ```
+  <1> We change the HTTP method to POST because we want to change something instead of just retrieving information.
+  <2> A request can also have a body. Here we are sending a text version of our JSON object.
 
 Our frontend HTTP request to our backend is changed, now we need to adapt the backend code.
 
 ```Javascript
 const handler = async (event) => {
   try {
-    var data = JSON.parse(event.body);
+    var data = JSON.parse(event.body); <1>
     return {
       statusCode: 200,
-      body: JSON.stringify({ name: data.name })
+      body: JSON.stringify({ name: data.name }) <2>
     }
   } catch (error) {
     return { statusCode: 500, body: error.toString() }
@@ -435,6 +450,8 @@ const handler = async (event) => {
 
 module.exports = { handler }
 ```
+  <1> The event object allows us to get the body of the request. It's text, we can parse this text into a JSON object and assign it to the field called `data`.
+  <2> To make sure we did receive our JSON object, we change the returned message and use the field `data.name`. 
 
 You should see a different message in the web dev console, you should see `{"name":"yourName"}`.
 
@@ -472,26 +489,26 @@ Now click on the *Connect* tab. You will see the connection String, select your 
 We can copy and paste this to our function code, and add a couple more things.
 
 ```Javascript
-const couchbase = require("couchbase");
-const crypto = require("crypto")
+const crypto = require("crypto"); <1> 
+const couchbase = require("couchbase"); <2>
 
 const handler = async (event) => {
   try {
-		const clusterConnStr = "couchbases://cb.ar0qqwli6cczm1u.cloud.couchbase.com"; // Replace this with Connection String
-		const username = "Adminstrator"; // Replace this with username from database access credentials
-		const password = "Couch#123"; // Replace this with password from database access credentials
+		const clusterConnStr = "couchbases://cb.ar0qqwli6cczm1u.cloud.couchbase.com"; // Replace this with Connection String <3>
+		const username = "Adminstrator"; // Replace this with username from database access credentials <3>
+		const password = "Couch#123"; // Replace this with password from database access credentials <3>
 		// Get a reference to the cluster
-		const cluster = await couchbase.connect(clusterConnStr, {
+		const cluster = await couchbase.connect(clusterConnStr, { <4>
 		  username: username,
 		  password: password,
 		  // Use the pre-configured profile below to avoid latency issues with your connection.
 		  configProfile: "wanDevelopment",
 		});
-    const bucket = cluster.bucket("surveyform");
-    const collection = bucket.defaultCollection();
+    const bucket = cluster.bucket("surveyform"); <5>
+    const collection = bucket.defaultCollection(); <6>
 
     var data = JSON.parse(event.body);
-    let result = await collection.insert(crypto.randomUUID(), data);
+    let result = await collection.insert(crypto.randomUUID(), data); <7>
     
     return {
       statusCode: 200,
@@ -507,7 +524,10 @@ module.exports = { handler }
 
 ```
 
-You can see we have two new dependencies to our project. The 'crypto' package is provided by node. For Couchbase you need to install it. Running `npm i couchbase@4.2.4` will do the trick. Right now Netlify/Couchbase compatibilty is assured for Couchbase version 4.2.4 or bellow. This is due to the nature of our SDK. It's a JavaScript interface on top our our C SDK. And C dependencies expect to find their system dependencies in the right version. Right now Couchbase 4.2.5 is expecting to find GLIBC_29 but it's not available on the Ubuntu system running our Netlify backend code.
+  <1> You can see we have two new dependencies to our project. The 'crypto' package is provided by node. It allows us to generate a random identifier for our document
+  <2> The 'couchbase' package is the Couchbase NodeJS SDK. It's every bit of code you need to connect to a Couchbase database. This projects are also often called drivers for other databases, or clients.
+  
+For Couchbase you need to install it. Running `npm i couchbase@4.2.4` will do the trick. Right now Netlify/Couchbase compatibilty is assured for Couchbase version 4.2.4 or bellow. This is due to the nature of our SDK. It's a JavaScript interface on top our our C SDK. And C dependencies expect to find their system dependencies in the right version. Right now Couchbase 4.2.5 is expecting to find GLIBC_29 but it's not available on the Ubuntu system running our Netlify backend code.
 
 Now that we have dependencies, let's be explicit in how build them. You can add a `netlify.toml` file at the root of the repository with the following content:
 
@@ -518,23 +538,29 @@ Now that we have dependencies, let's be explicit in how build them. You can add 
 ```
 It's doing a couple things. Installing the dependencies and removing the debug symbol table from `couchbase_impl.node`. This file is the C library used by our Node SDK. And it's too big for Netlify right now. So we are removing unnecessary clutter coming from the build process.
 
-Now you can add the new files, commit and push to Github. And retry your function. If everything went well, you have written data to your Database! You can check this out easily by going to the Couchbase Capella UI. Cick on *Data Tools*, select your Bucket, Scope and collection, and you should see your survey from document.
+  <3> This variables are the informations needed for the SDK to connect to the cluster. A connections string, a username and a password.
+  <4> `couchbase.connect` takes the connection string as first parameter, than a JSON object with username, password and other options. Here we also give the `wanDevelopment` config profiles. It will increase the default timeout values of all Couchbase operations. Basically if your connection is slow it won't scream at you.
+  <5> From the Cluster object we get a Bucket. A bucket is where we store Scopes and Collections. Here we get the `surveyform` bucket. It already has a default scope and a default collection.
+  <6> From the bucket we can get the default Collection. A Collection is where we store Document, or key/value pairs. Think of the key as the identifier of the document, and the value as your JSON data. But it could be anything else.
+  <7> From the collection object, we call the insert method. It takes two parameters, the key and the value. So we call the randomUUID() method from the crypto package, to generate a random identifier. And we pass the data object as value. It contains our JSON. This function is asynchronous, it's making a request to the Couchbase Capella cluster. We await for the cluster's response.
+
+Now you could add the new files, commit and push to Github. But that would push your password to Github. We don't want that. Instead you can test it by running `netlify dev`. Go ahead and resubmit the form.
+
+If everything went well, you have written data to your Database! You can check this out easily by going to the Couchbase Capella UI. Cick on *Data Tools*, select your Bucket, Scope and collection, and you should see your survey from document.
 ![A screenshot of the Bucket content with the newly created document](images/bucketdetails.png)
 
-Congratulations, you went fullstack. Backend, Frontend and Database. But our work is not over. There are still a couple things we can do to make this more professional.
+This is great, you just wrote code to your database !
 
 ## Step 5 - Configuration Management
 
-We did something terrible, we pushed our credentials to Github. This is something to avoid because now someone has your credentials. We could rewrite the Github history but really the good thing to do once your credentials, password, keys are in the wild. It's to change them. Consider them lost.
-
-To fix this we are going to use environment variables instead. Environment variables are common to every Operating Systems and as such is a great way to manage configuration.
+To avoid pushing our credentials on Github, we are going to use environment variables. Environment variables are common to every Operating Systems and is the best way to manage configuration across different environments(Different OSs, clouds, test, staging, preproduction, production, whatever fits your workflow).
 
 ```
 ....
-const ENDPOINT = process.env.COUCHBASE_ENDPOINT || "couchbase://localhost";
-const USERNAME = process.env.COUCHBASE_USERNAME || "Administrator";
-const PASSWORD = process.env.COUCHBASE_PASSWORD || "password";
-const BUCKET = process.env.COUCHBASE_BUCKET || "surveyform"
+const ENDPOINT = process.env.COUCHBASE_ENDPOINT || "couchbase://localhost"; <1>
+const USERNAME = process.env.COUCHBASE_USERNAME || "Administrator";<1>
+const PASSWORD = process.env.COUCHBASE_PASSWORD || "password";<1>
+const BUCKET = process.env.COUCHBASE_BUCKET || "surveyform"<1>
 
 const handler = async (event) => {
   try {
@@ -551,8 +577,7 @@ const handler = async (event) => {
     const bucket = cluster.bucket(BUCKET);
 ...
 ```
-
-The process object is always available with node so no need for a specific library import. Using _||_ allows to provide a default value for each variable if they are not defined.
+  <1> The process object is always available with node so no need for a specific library import. Using _||_ allows to provide a default value for each variable if they are not defined.
 
 On Mac or Linux, you can run `export MYVARIABLE="value"` in your terminal. On Windows you can run `$Env:MYVARIABLE="value"`
 
@@ -564,23 +589,30 @@ netlify env:set COUCHBASE_PASSWORD password
 netlify env:set COUCHBASE_BUCKET surveyform
 ```
 
+Now you can add your files, commit and push your code. Congratulations, you went fullstack. Backend, Frontend and Database. And deployed everything live! But our work is not over. There are still a couple things we can do to make this more professional.
+
+
 ## Step 6 - User feedback
 
 Right now we don't have much happening when the user clicks on the *Submit* button of our form. We need to change this to let them know they have been successfully recored, or not. First step it check for an error on the dev side of things. HTTP status code are well made, anything equals or higher than 400 is usually an error, so we can do something like this:
 
 ```Javascript
     
-    if (response.status >= 400) {
-      console.log("Something when wrong");
-      console.log(await response.text());
+    if (response.status >= 400) { <1>
+      console.log("Something when wrong"); <2>
+      console.log(await response.text()); <3>
       return false;
     }
 ```
 
+  <1> Status code that starts with 4 usually means something went wrong on the client side. The wrong data was sent, the client does not have the right permission, the page does not exist etc... Here we test if the code is equals or higher than 400.
+  <2> If it is, we log a message in the console
+  <3> We also log the error message returned by the server
+
 
 To test it, just make a typo somewhere in your Connection String or Credentials to Couchnase. You should see errors in the webconsole once clicking on *Submit*. But the web console is just for us, we need to add a proper error or success message to our user.
 
-I added a couple span with error and success message right before the end of the form. Note the hide CSS class that makes them invisible for now.
+I added a couple span HTML elements with error and success message right before the end of the form. Note the hide CSS class that makes them invisible for now.
 ```html
 ...
         </div>
@@ -662,14 +694,14 @@ Now to put everything together. The first two lines get the new span elements ju
 
 ```Javascript
 
-    const thankYouMessage = document.getElementById('thank-you-message');
-    const formError = document.getElementById("form-error");
+    const thankYouMessage = document.getElementById('thank-you-message'); <1>
+    const formError = document.getElementById("form-error"); <1>
 
     if (response.status == 200) {
-      form.reset();
-      thankYouMessage.classList.add('show');
-      thankYouMessage.classList.add('fade-out');
-      setTimeout(function(){thankYouMessage.classList.remove('fade-out');thankYouMessage.classList.remove('show');}, 7000);
+      form.reset(); <2>
+      thankYouMessage.classList.add('show'); <3>
+      thankYouMessage.classList.add('fade-out'); <3>
+      setTimeout(function(){thankYouMessage.classList.remove('fade-out');thankYouMessage.classList.remove('show');}, 7000); <3>
       console.log(await response.text());
       return false;
     }
@@ -677,10 +709,19 @@ Now to put everything together. The first two lines get the new span elements ju
     if (response.status >= 400) {
       console.log("Something when wrong");
       console.log(await response.text());
-      formError.textContent = "Something went wrong while recording your contact.";
-      formError.classList.toggle('show');
-      formError.classList.toggle('fade-out');
-      setTimeout(function(){formError.classList.toggle('fade-out');formError.classList.toggle('show');}, 7000);
+      formError.textContent = "Something went wrong while recording your contact."; <4>
+      formError.classList.toggle('show'); <4>
+      formError.classList.toggle('fade-out'); <4>
+      setTimeout(function(){formError.classList.toggle('fade-out');formError.classList.toggle('show');}, 7000); <4>
       return false;
     }
 ```
+
+  <1> We assign our new spans to variables
+  <2> If things went well, we reset the form's data, it shows to the user that it worked.
+  <3> We first add a CSS class that shows the error message, than apply the fade-out CSS class, than call the timeout function. In 7000 ms, the fade-out and show CSS class will be removed, hiding the success message again.
+  <4> We do the same thing when there is an error, using the formError HTML element instead.
+
+Now you can test submit a form again and see the different success or error message, depending on what you decided to do. When you are happy you can add, commit and push that code. 
+
+Congratulations, you made it to the end of this guide ! You have used git, Github, Netlify and Couchbase Capella to deploy an HTML form on the web, and make sure that the content was stored in a database each time users sould submit the form.
