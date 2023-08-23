@@ -1,8 +1,15 @@
 # freecodecamp-survey
 
-What happens after you have completed https://www.freecodecamp.org/learn/2022/responsive-web-design/build-a-survey-form-project/build-a-survey-form?
+The Couchbase DevRel team has been working with the [Bad Website Club](https://badwebsite.club/) on [freeCodeCamp](https://www.freecodecamp.org/) materials. 
 
-This is a step by step guide to take your form one step further. The goal is to store the content of the form in the database each time someone clicks the submit button. To do that we will use Github, Netlify and Couchbase Capella.
+_freeCodeCamp is a non-profit organization that consists of an interactive learning web platform, an online community forum, chat rooms, online publications and local organizations that intend to make learning software development accessible to anyone._
+
+_The Bad Website Club is an online community helping new learners in their programming journey._
+
+We have been streaming to show fCC learners what could happen to their project in more 'real-life’ conditions. We started with the Responsive Web Design course, took some examples like the Survey form, completed them and pushed them to production. The whole series is streamed on Youtube, Linkedin, Twitter and Twitch, and the recordings are available on this [youtube playlist if you want to check it out](https://www.youtube.com/watch?v=OkO1ZHH1N54&list=PLcspbWiU9RutKoHwXID713a_GcTgeT6j6).
+
+
+I was personally streaming on the [Survey project](https://www.freecodecamp.org/learn/2022/responsive-web-design/build-a-survey-form-project/build-a-survey-form). In this blog post series, I will show you all the additional steps you can do publish the code on Github, deploy the Survey online with Netlify, and storing its content on Couchbase Capella.
 
 ## Step 1 - Create an HTML Form
 
